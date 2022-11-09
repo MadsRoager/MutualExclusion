@@ -4,12 +4,13 @@ package ping;
 option go_package = "https://github.com/NaddiNadja/peer-to-peer;ping";
 
 
-service Ping {
-    rpc ping (Request) returns (Reply) {}
+service Request {
+    rpc request (Priority) returns (Reply) {}
 }
 
-message Request {
+message Priority {
     int32 id = 1;
+    int32 lamportTimestamp = 2;
 }
 
 message Reply {
