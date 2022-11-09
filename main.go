@@ -30,6 +30,11 @@ type peer struct {
 }
 
 func main() {
+	logfile, err := os.OpenFile("logfile", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	log.SetOutput(logfile)
 	log.SetFlags(2)
 	arg1, _ := strconv.ParseInt(os.Args[1], 10, 32)
 	ownPort := int32(arg1) + 8000
@@ -81,6 +86,7 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		log.Printf("%d wants to enter critical section", p.id)
+		fmt.Printf("%d wants to enter critical section", p.id)
 		p.wantToEnterCriticalSection()
 	}
 }
@@ -101,6 +107,7 @@ func (p *peer) changeState(state string) {
 
 func (p *peer) enterCriticalSection() {
 	log.Printf("Peer with id %d entered the critical section", p.id)
+	fmt.Printf("Peer with id %d entered the critical section", p.id)
 	time.Sleep(6 * time.Second)
 }
 

@@ -1,0 +1,37 @@
+17:02:31 Trying to dial: 8001
+17:03:02 Trying to dial: 8001
+17:03:09 Trying to dial: 8000
+17:03:09 Trying to dial: 8001
+17:03:20 Trying to dial: 8000
+17:03:20 Trying to dial: 8002
+17:03:20 Trying to dial: 8002
+17:03:30 8001 wants to enter critical section
+17:03:30 Peer with id 8001 changed its state to WANTED
+17:03:30 Peer with id 8001 changed its state to HELD
+17:03:30 Peer with id 8001 entered the critical section
+17:04:12 Trying to dial: 8001
+17:04:15 Trying to dial: 8000
+17:04:15 Trying to dial: 8002
+17:04:15 Trying to dial: 8002
+17:04:17 Trying to dial: 8000
+17:04:17 Trying to dial: 8001
+17:04:23 8002 wants to enter critical section
+17:04:23 Peer with id 8002 changed its state to WANTED
+17:04:23 Peer with id 8002 changed its state to HELD
+17:04:23 Peer with id 8002 entered the critical section
+17:04:25 8000 wants to enter critical section
+17:04:25 Peer with id 8000 changed its state to WANTED
+17:04:28 8001 wants to enter critical section
+17:04:28 Peer with id 8001 changed its state to WANTED
+17:04:29 Peer with id 8002 changed its state to RELEASED
+17:04:29 Peer with id 8000 changed its state to HELD
+17:04:29 Peer with id 8000 entered the critical section
+17:04:30 8002 wants to enter critical section
+17:04:30 Peer with id 8002 changed its state to WANTED
+17:04:35 Peer with id 8000 changed its state to RELEASED
+17:04:36 Peer with id 8001 changed its state to HELD
+17:04:36 Peer with id 8001 entered the critical section
+17:04:42 Peer with id 8001 changed its state to RELEASED
+17:04:42 Peer with id 8002 changed its state to HELD
+17:04:42 Peer with id 8002 entered the critical section
+17:04:48 Peer with id 8002 changed its state to RELEASED
