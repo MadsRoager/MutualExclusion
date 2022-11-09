@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-package ping;
-option go_package = "https://github.com/NaddiNadja/peer-to-peer;ping";
+package MutualExclusion;
+option go_package = "grpc/proto";
 
 
 service Ping {
