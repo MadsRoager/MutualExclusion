@@ -13,6 +13,7 @@ import (
 
 	request "github.com/MadsRoager/MutualExclusion/grpc"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 var WaitGroup sync.WaitGroup
@@ -65,6 +66,7 @@ func main() {
 		}
 	}()
 
+	// Dialing peers
 	for i := 0; i < 3; i++ {
 		port := int32(8000) + int32(i)
 
@@ -74,7 +76,8 @@ func main() {
 
 		var conn *grpc.ClientConn
 		log.Printf("Trying to dial: %v\n", port)
-		conn, err := grpc.Dial(fmt.Sprintf(":%v", port), grpc.WithInsecure(), grpc.WithBlock())
+		fmt.Printf("Trying to dial: %v\n", port)
+		conn, err := grpc.Dial(fmt.Sprintf(":%v", port), grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			log.Fatalf("Could not connect: %s", err)
 		}
@@ -83,10 +86,14 @@ func main() {
 		p.clients[port] = c
 	}
 
+	waitingForSignToEnterCriticalSection(p)
+}
+
+func waitingForSignToEnterCriticalSection(p *peer) {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
-		log.Printf("%d wants to enter critical section", p.id)
-		fmt.Printf("%d wants to enter critical section", p.id)
+		log.Printf("Peer with id %d wants to enter critical section", p.id)
+		fmt.Printf("Peer with id %d wants to enter critical section\n", p.id)
 		p.wantToEnterCriticalSection()
 	}
 }
@@ -103,30 +110,7 @@ func (p *peer) wantToEnterCriticalSection() {
 func (p *peer) changeState(state string) {
 	p.state = state
 	log.Printf("Peer with id %d changed its state to %s", p.id, state)
-}
-
-func (p *peer) enterCriticalSection() {
-	log.Printf("Peer with id %d entered the critical section", p.id)
-	fmt.Printf("Peer with id %d entered the critical section", p.id)
-	time.Sleep(6 * time.Second)
-}
-
-func (p *peer) Request(ctx context.Context, req *request.Priority) (*request.Reply, error) {
-	p.updateTimestamp(req.LamportTimestamp, &m)
-	for p.state == "HELD" || p.state == "WANTED" && p.isFirstPriority(req) {
-		// queue request
-		time.Sleep(1 * time.Second)
-	}
-	rep := &request.Reply{Amount: 1}
-	return rep, nil
-
-}
-
-func (p *peer) isFirstPriority(req *request.Priority) bool {
-	if req.LamportTimestamp > lastSentLamportTimestamp {
-		return true
-	}
-	return req.Id > p.id
+	fmt.Printf("Peer with id %d changed its state to %s\n", p.id, state)
 }
 
 func (p *peer) sendRequestToAll() {
@@ -135,19 +119,24 @@ func (p *peer) sendRequestToAll() {
 	request := &request.Priority{Id: p.id, LamportTimestamp: p.lamportTimestamp} // TODO
 	for id, client := range p.clients {
 		WaitGroup.Add(1)
-		go p.RequestAndWaitForReply(client, request, id)
+		go p.requestAndWaitForReply(client, request, id)
 	}
 	WaitGroup.Wait()
 
 }
 
-func (p *peer) RequestAndWaitForReply(client request.RequestClient, request *request.Priority, id int32) {
+func (p *peer) requestAndWaitForReply(client request.RequestClient, request *request.Priority, id int32) {
 	_, err := client.Request(p.ctx, request)
 	if err != nil {
 		log.Fatalln("Something went wrong")
 	}
 	defer WaitGroup.Done()
+}
 
+func (p *peer) enterCriticalSection() {
+	log.Printf("Peer with id %d entered the critical section", p.id)
+	fmt.Printf("Peer with id %d entered the critical section\n", p.id)
+	time.Sleep(6 * time.Second)
 }
 
 func (p *peer) updateTimestamp(newTimestamp int32, m *sync.Mutex) {
@@ -162,4 +151,23 @@ func maxValue(new int32, old int32) int32 {
 		return old
 	}
 	return new
+}
+
+func (p *peer) Request(ctx context.Context, req *request.Priority) (*request.Reply, error) {
+	p.updateTimestamp(req.LamportTimestamp, &m)
+	// waiting to reply until its state is RELEASED
+	for p.state == "HELD" || p.state == "WANTED" && p.isFirstPriority(req) {
+		// queue request
+		time.Sleep(1 * time.Second)
+	}
+	rep := &request.Reply{Amount: 1}
+	return rep, nil
+
+}
+
+func (p *peer) isFirstPriority(req *request.Priority) bool {
+	if req.LamportTimestamp > lastSentLamportTimestamp {
+		return true
+	}
+	return req.Id > p.id
 }
