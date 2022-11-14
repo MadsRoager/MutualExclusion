@@ -38,7 +38,7 @@ func main() {
 	log.SetOutput(logfile)
 	log.SetFlags(2)
 	arg1, _ := strconv.ParseInt(os.Args[1], 10, 32)
-	ownPort := int32(arg1) + 8000
+	ownPort := int32(arg1)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -67,8 +67,10 @@ func main() {
 	}()
 
 	// Dialing peers
-	for i := 0; i < 3; i++ {
-		port := int32(8000) + int32(i)
+	n := 2
+	for n < len(os.Args) {
+		arg, _ := strconv.ParseInt(os.Args[n], 10, 32)
+		port := int32(arg)
 
 		if port == ownPort {
 			continue
@@ -84,6 +86,7 @@ func main() {
 		defer conn.Close()
 		c := request.NewRequestClient(conn)
 		p.clients[port] = c
+		n++
 	}
 
 	waitingForSignToEnterCriticalSection(p)
