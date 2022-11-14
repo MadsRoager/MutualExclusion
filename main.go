@@ -77,7 +77,6 @@ func main() {
 		}
 
 		var conn *grpc.ClientConn
-		log.Printf("Trying to dial: %v\n", port)
 		fmt.Printf("Trying to dial: %v\n", port)
 		conn, err := grpc.Dial(fmt.Sprintf(":%v", port), grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
@@ -93,6 +92,7 @@ func main() {
 }
 
 func waitingForSignToEnterCriticalSection(p *peer) {
+	fmt.Println("Press enter to request access to the critical section")
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		log.Printf("Peer with id %d wants to enter critical section", p.id)
