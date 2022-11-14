@@ -13,3 +13,5 @@ E.g. if you want to use port 8000, 8001 and 8002 type the following in the 3 dif
   - Terminal 2: go run . 8001 8002 8000
 
   - Terminal 3: go run . 8002 8000 8001
+
+- When the program is running type enter to request the shared resource
